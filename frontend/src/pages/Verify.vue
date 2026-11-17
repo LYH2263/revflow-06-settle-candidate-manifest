@@ -44,7 +44,9 @@ function yuan(cents) {
 <template>
   <div>
     <h1>净额互证</h1>
-    <p class="lead">核对「已归并流水净额」与「账户余额合计」是否一致（隔离项不计入净额）。</p>
+    <p class="lead">
+      对照「本趟消费清单成员」「已归并流水净额」「账户余额合计」三者同源核对；隔离项与清单外新到达不计入本趟净额。
+    </p>
     <div class="row-actions">
       <button class="btn" :disabled="busy" @click="runVerify">跑净额互证</button>
     </div>
@@ -55,7 +57,9 @@ function yuan(cents) {
       <table>
         <thead>
           <tr>
-            <th>#</th><th>归并#</th><th>流水净额</th><th>余额合计</th><th>隔离数</th><th>一致</th><th>时间</th>
+            <th>#</th><th>归并#</th><th>流水净额</th><th>余额合计</th>
+            <th>清单成员</th><th>清单成功</th><th>清单隔离</th><th>清单外到达</th>
+            <th>清单一致</th><th>总一致</th><th>时间</th>
           </tr>
         </thead>
         <tbody>
@@ -64,7 +68,15 @@ function yuan(cents) {
             <td>{{ r.settle_run_id }}</td>
             <td>{{ yuan(r.ledger_net_cents) }}</td>
             <td>{{ yuan(r.balance_sum_cents) }}</td>
-            <td>{{ r.quarantine_count }}</td>
+            <td>{{ r.manifest_count }}</td>
+            <td>{{ r.manifest_settled_count }}</td>
+            <td>{{ r.manifest_quarantine_count }}</td>
+            <td>{{ r.outside_arrival_count }}</td>
+            <td>
+              <span class="tag" :class="r.manifest_consistent ? 'on' : 'bad'">
+                {{ r.manifest_consistent ? '是' : '否' }}
+              </span>
+            </td>
             <td>
               <span class="tag" :class="r.consistent ? 'on' : 'bad'">
                 {{ r.consistent ? '是' : '否' }}
@@ -72,7 +84,7 @@ function yuan(cents) {
             </td>
             <td>{{ r.created_at }}</td>
           </tr>
-          <tr v-if="!rows.length"><td colspan="7">尚无报告</td></tr>
+          <tr v-if="!rows.length"><td colspan="11">尚无报告</td></tr>
         </tbody>
       </table>
     </div>
